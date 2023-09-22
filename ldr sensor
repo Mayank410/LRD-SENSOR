@@ -1,0 +1,52 @@
+module LDR_OLED_Control (
+  input wire clk,       // Clock input
+  input wire rst,       // Reset input
+  input wire LDR_input, // Analog voltage input from LDR
+  output wire [7:0] OLED_SDA, // OLED display's data line (SDA)
+  output wire OLED_SCL,       // OLED display's clock line (SCL)
+  output wire OLED_DC,        // OLED display's data/command control line (D/C)
+  output wire OLED_RST,       // OLED display's reset line (RST)
+  output wire OLED_CS         // OLED display's chip select line (CS)
+);
+
+// Define parameters for threshold values
+parameter LIGHT_THRESHOLD = 8'b10000000; // Define your threshold value here
+parameter DARK_THRESHOLD = 8'b01000000;  // Define your threshold value here
+
+// Registers to store LDR readings
+reg [7:0] ldr_reading;
+
+// Counter for displaying LDR reading on OLED
+reg [3:0] display_counter = 4'b0000;
+wire [7:0] display_value;
+
+// ADC configuration
+reg [7:0] adc_result;
+reg adc_start;
+
+always @(posedge clk or posedge rst) begin
+  if (rst) begin
+    ldr_reading <= 8'b00000000; // Reset LDR reading
+    display_counter <= 4'b0000; // Reset display counter
+    adc_result <= 8'b00000000;  // Reset ADC result
+    adc_start <= 1'b0;          // Deassert ADC start
+  end else begin
+    // Update LDR reading (you may need to adjust the range)
+    ldr_reading <= adc_result;
+
+    // Logic to start ADC conversion
+    adc_start <= 1'b1;
+    if (display_counter < 4'b1001) begin
+      display_counter <= display_counter + 1'b1;
+    end else begin
+      display_counter <= 4'b0000;
+    end
+  end
+end
+
+// Connect the display value to the OLED display's SDA line
+assign OLED_SDA = display_value;
+
+// Connect other OLED control lines (SCL, DC, RST, CS) based on your OLED display's interface
+
+endmodule
