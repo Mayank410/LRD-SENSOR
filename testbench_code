@@ -1,0 +1,47 @@
+
+module tb_ldr_sensor;
+
+reg clk = 0;
+wire [7:0] ldr_data;
+wire sunlight;
+
+// Instantiate the LDR sensor module
+ldr_sensor dut (
+    .clk(clk),             // Connect the clock
+    .ldr_data(ldr_data),
+    .sunlight(sunlight)
+);
+
+// Clock generation
+always begin
+    #5 clk = ~clk;
+end
+
+// Stimulus generation
+initial begin
+    // Declare and initialize hour within the testbench module
+    reg [4:0] hour = 0;
+
+    // Simulate for 24 hours
+    repeat (24) begin
+        // Display the time of day and initial values
+        if (hour >= 5 && hour < 7) begin
+            $display("Time: %d:00 AM - Intensity is Low - LDR Data: %b, Sunlight: %b", hour, ldr_data, sunlight);
+        end else if (hour >= 17 && hour < 19) begin
+            $display("Time: %d:00 PM - Intensity is Low - LDR Data: %b, Sunlight: %b", hour, ldr_data, sunlight);
+        end else begin
+            $display("Time: %d:00 PM - Intensity is High - LDR Data: %b, Sunlight: %b", hour, ldr_data, sunlight);
+        end
+
+        // Increment hour
+        hour = hour + 1;
+
+        // Wait for an hour
+        #60;
+    end
+
+    // Finish simulation
+    $finish;
+end
+
+endmodule
